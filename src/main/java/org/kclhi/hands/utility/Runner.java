@@ -48,6 +48,9 @@ import javax.swing.event.ListSelectionListener;
 import org.mapdb.BTreeMap;
 
 import org.kclhi.hands.Main;
+import org.kclhi.hands.graph.GraphController;
+import org.kclhi.hands.graph.StringEdge;
+import org.kclhi.hands.graph.StringVertex;
 import org.kclhi.hands.utility.GameTheoretic.ApproximatePayoffMatrix;
 import org.kclhi.hands.utility.output.Datafile;
 import org.kclhi.hands.utility.output.GroupedHiderRecords;
@@ -63,7 +66,7 @@ import bsh.Interpreter;
 * @author Martin
 *
 */
-public class Runner extends JFrame {
+public class Runner extends JFrame implements GraphReadyCallback{
   
   /**
   * 
@@ -1625,6 +1628,18 @@ public class Runner extends JFrame {
     ////
     
   }
+
+  @Override
+  public void onGraphReady(ArrayList<StringVertex> vertices, Set<StringEdge> edges) {
+    JPanel visualTab = new JPanel();
+    visualTab.setLayout(new BorderLayout());
+
+    GraphPanel graphPanel = new GraphPanel(vertices, edges);
+    visualTab.add(graphPanel, BorderLayout.CENTER);
+    visualTab.revalidate();
+    
+    // tabbedPane.addTab("Visual", visualTab);
+  }
   
   /**
   * 
@@ -2921,8 +2936,10 @@ public class Runner extends JFrame {
       System.out.println(paramString);
       
       /***********/
+
+      GraphReadyCallback callback = this;
     
-      Main.main(Stream.concat(Arrays.stream(new String[]{i+"", GAMES+""}), Arrays.stream(paramString.split(" "))).toArray(String[]::new));
+      Main.main(Stream.concat(Arrays.stream(new String[]{i+"", GAMES+""}), Arrays.stream(paramString.split(" "))).toArray(String[]::new), callback);
 
       System.out.println("-----------------------------------------------------------------");
       

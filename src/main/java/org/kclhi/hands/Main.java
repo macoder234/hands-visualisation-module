@@ -15,6 +15,7 @@ import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
+import org.kclhi.hands.utility.GraphReadyCallback;
 import org.kclhi.hands.utility.Pair;
 import org.kclhi.hands.utility.Utils;
 import org.kclhi.hands.utility.adaptive.AdaptiveMeasure;
@@ -221,9 +222,16 @@ public class Main {
   private boolean generateOutput;
   
   /**
+  * 
+  */
+  private GraphReadyCallback graphReadyCallback;
+
+  /**
   * @param args
   */
-  public Main(String[] args) {
+  public Main(String[] args, GraphReadyCallback callback) {
+
+    this.graphReadyCallback = callback;
     
     currentSimulationIdentifier = Utils.readFromFile(Utils.FILEPREFIX + "simRecordID.txt").get(0);
     
@@ -296,6 +304,9 @@ public class Main {
     
     graphController = new GraphController<StringVertex, StringEdge>(topology, numberOfVertices, numberOfHideLocations, fixedOrUpperBound, fixedOrUpperValue, edgeTraversalDecrement, baseGasProportion);
     
+    if (graphReadyCallback != null) {
+      graphReadyCallback.onGraphReady(graphController.vertexSet(), graphController.edgeSet(this));
+    }
   }
   
   /**
@@ -1792,8 +1803,8 @@ public class Main {
     /**
     * @param args
     */
-    public static void main(String[] args) {
-      
+    public static void main(String[] args, GraphReadyCallback callback) {
+
       System.setProperty("jdk.internal.FileHandlerLogging.maxLocks", Integer.MAX_VALUE + "");
       Logger logger = Logger.getLogger(Main.class.toString());  
       FileHandler fh;  
@@ -1821,7 +1832,7 @@ public class Main {
         }
       });  
       
-      new Main(args);
+      new Main(args, callback);
       
     }
     

@@ -51,3 +51,6 @@ buildNumber.properties
 .vscode/
 /output
 !/output/simulationSchedule-template.txt
+
+# mac stuff
+.DS_Store
