@@ -307,6 +307,7 @@ public class Runner extends JFrame implements GraphReadyCallback{
   
   private JCheckBox strategyOverRounds;
   
+  private GraphPanel graphPanel;
   /**
   * Helper interface for specifying different actions
   * to take place once something has been deleted
@@ -378,9 +379,11 @@ public class Runner extends JFrame implements GraphReadyCallback{
     simulationsTab(tabbedPane);
     
     outputTab(tabbedPane);
+
+    visualTab(tabbedPane);
     
     //
-    
+
     pack();
     
     if (!textBased) setVisible(true);
@@ -1629,16 +1632,18 @@ public class Runner extends JFrame implements GraphReadyCallback{
     
   }
 
-  @Override
-  public void onGraphReady(ArrayList<StringVertex> vertices, Set<StringEdge> edges) {
+  private void visualTab(JTabbedPane tabbedPane) {
     JPanel visualTab = new JPanel();
     visualTab.setLayout(new BorderLayout());
+    tabbedPane.addTab("Visual", visualTab);
 
-    GraphPanel graphPanel = new GraphPanel(vertices, edges);
+    graphPanel = new GraphPanel();
     visualTab.add(graphPanel, BorderLayout.CENTER);
-    visualTab.revalidate();
-    
-    // tabbedPane.addTab("Visual", visualTab);
+  }
+
+  @Override
+  public void onGraphReady(ArrayList<StringVertex> vertices, Set<StringEdge> edges) {
+    graphPanel.setGraphData(vertices, edges);
   }
   
   /**

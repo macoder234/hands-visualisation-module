@@ -17,16 +17,24 @@ public class GraphPanel extends JPanel {
     private Set<StringEdge> edges;
     private Map<StringVertex, Point> vertexPositions = new HashMap<>();
 
-    public GraphPanel(ArrayList<StringVertex> vertices, Set<StringEdge> edges) {
+    public GraphPanel() {
+    }
+
+    public void setGraphData(ArrayList<StringVertex> vertices, Set<StringEdge> edges) {
         this.vertices = vertices;
         this.edges = edges;
         assignVertexPositions();
+        repaint();
+    }
+
+    @Override
+    public void doLayout() {
+        super.doLayout();
     }
 
 
     private void assignVertexPositions() {
-        // Example: Assign positions in a circle
-        int radius = 200; // Radius of the circle
+        double radius = getHeight() / 2.5; // Radius of the circle
         int centerX = getWidth() / 2;
         int centerY = getHeight() / 2;
         int n = vertices.size();
