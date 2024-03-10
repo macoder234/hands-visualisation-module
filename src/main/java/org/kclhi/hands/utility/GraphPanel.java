@@ -23,7 +23,7 @@ public class GraphPanel extends JPanel {
     public void setGraphData(ArrayList<StringVertex> vertices, Set<StringEdge> edges) {
         this.vertices = vertices;
         this.edges = edges;
-        assignVertexPositions();
+        assignPositionsDirected();
         repaint();
     }
 
@@ -33,7 +33,51 @@ public class GraphPanel extends JPanel {
     }
 
 
-    private void assignVertexPositions() {
+    private void assignPositionsDirected() {
+        final double repulsion = 5000; // Repulsion constant
+        final double attraction = 0.1; // Attraction constant
+        final int padding = 20;
+        Map<StringVertex, Point> newPositions = new HashMap<>();
+    
+        // Initialize random positions if not already set
+        vertices.forEach(v -> vertexPositions.putIfAbsent(v, new Point(padding + (int)(Math.random() * (getWidth() - 2 * padding)), padding + (int)(Math.random() * (getHeight() - 2 * padding)))));
+    
+        // Apply forces to each vertex
+        for (StringVertex v1 : vertices) {
+            double fx = 0, fy = 0;
+            for (StringVertex v2 : vertices) {
+                if (v1 != v2) {
+                    Point p1 = vertexPositions.get(v1), p2 = vertexPositions.get(v2);
+                    double dx = p1.x - p2.x, dy = p1.y - p2.y;
+                    double distance = Math.sqrt(dx * dx + dy * dy);
+                    double force = repulsion / distance;
+                    fx += force * dx / distance;
+                    fy += force * dy / distance;
+                }
+            }
+    
+            // Attraction to connected vertices
+            for (StringEdge edge : edges) {
+                if (edge.getSource().equals(v1) || edge.getTarget().equals(v1)) {
+                    StringVertex other = edge.getSource().equals(v1) ? edge.getTarget() : edge.getSource();
+                    Point p1 = vertexPositions.get(v1), pOther = vertexPositions.get(other);
+                    double dx = p1.x - pOther.x, dy = p1.y - pOther.y;
+                    fx -= dx * attraction;
+                    fy -= dy * attraction;
+                }
+            }
+    
+            // Update position
+            Point p = vertexPositions.get(v1);
+            int newX = (int) Math.min(getWidth() - padding, Math.max(padding, p.x + fx));
+            int newY = (int) Math.min(getHeight() - padding, Math.max(padding, p.y + fy));
+            newPositions.put(v1, new Point(newX, newY));
+            }
+    
+        vertexPositions = newPositions;
+    }
+
+    private void assignPositionsCircular() {
         double radius = getHeight() / 2.5; // Radius of the circle
         int centerX = getWidth() / 2;
         int centerY = getHeight() / 2;
@@ -49,6 +93,7 @@ public class GraphPanel extends JPanel {
         }
     }
 
+    
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -64,4 +109,6 @@ public class GraphPanel extends JPanel {
             g.drawLine(sourcePosition.x, sourcePosition.y, targetPosition.x, targetPosition.y);
         }
     }
+
+    // TODO: Add back the circular graph panel
 }

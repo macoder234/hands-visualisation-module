@@ -1540,6 +1540,8 @@ public class Main {
             Utils.writeToFile(outputJavascript, "hidden[" + i + "] = \"" + hiders.get(0).requestHideLocations(hiders.get(0)) + "\"; \n");
             
             Utils.writeToFile(outputJavascript, "path[" + i + "] = \"" + graphController.latestRoundPaths(this, seekers.get(0)) + "\"; \n");
+
+            // TODO: Get hider/seeker locations back to GraphPanel
             
           }
           

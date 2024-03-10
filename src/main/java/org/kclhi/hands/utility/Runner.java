@@ -22,6 +22,7 @@ import java.util.stream.Stream;
 import java.util.Scanner;
 import java.util.Set;
 
+import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
@@ -1633,12 +1634,31 @@ public class Runner extends JFrame implements GraphReadyCallback{
   }
 
   private void visualTab(JTabbedPane tabbedPane) {
-    JPanel visualTab = new JPanel();
-    visualTab.setLayout(new BorderLayout());
-    tabbedPane.addTab("Visual", visualTab);
+      JPanel visualTab = new JPanel(new BorderLayout());
+      tabbedPane.addTab("Visual", visualTab);
 
-    graphPanel = new GraphPanel();
-    visualTab.add(graphPanel, BorderLayout.CENTER);
+      graphPanel = new GraphPanel();
+      visualTab.add(graphPanel, BorderLayout.CENTER);
+
+      // Call the new method to create the control panel
+      createControlPanel(visualTab);
+  }
+
+  private void createControlPanel(JPanel visualTab) {
+    JPanel controlPanel = new JPanel();
+    controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.Y_AXIS));
+    
+    // Example button
+    JButton refreshButton = new JButton("Refresh");
+    refreshButton.addActionListener(e -> {
+        // Placeholder for action - refresh the graphPanel here
+        System.out.println("Refresh graph");
+    });
+
+    // Add more controls as needed
+    controlPanel.add(refreshButton);
+
+    visualTab.add(controlPanel, BorderLayout.EAST);
   }
 
   @Override
