@@ -20,10 +20,10 @@ public class GraphPanel extends JPanel {
     public GraphPanel() {
     }
 
-    public void setGraphData(ArrayList<StringVertex> vertices, Set<StringEdge> edges) {
+    public void setGraphData(ArrayList<StringVertex> vertices, Set<StringEdge> edges, String graphLayout) {
         this.vertices = vertices;
         this.edges = edges;
-        assignPositionsDirected();
+        assignPositions(graphLayout);
         repaint();
     }
 
@@ -32,6 +32,13 @@ public class GraphPanel extends JPanel {
         super.doLayout();
     }
 
+    private void assignPositions(String graphLayout) {
+        if (graphLayout.equals("Circular")) {
+            assignPositionsCircular();
+        } else if (graphLayout.equals("Force Directed")) {
+            assignPositionsDirected();
+        }
+    }
 
     private void assignPositionsDirected() {
         final double repulsion = 5000; // Repulsion constant
@@ -78,7 +85,7 @@ public class GraphPanel extends JPanel {
     }
 
     private void assignPositionsCircular() {
-        double radius = getHeight() / 2.5; // Radius of the circle
+        double radius = Math.min(getHeight(), getWidth()) / 2.2; // Radius of the circle
         int centerX = getWidth() / 2;
         int centerY = getHeight() / 2;
         int n = vertices.size();
@@ -109,6 +116,4 @@ public class GraphPanel extends JPanel {
             g.drawLine(sourcePosition.x, sourcePosition.y, targetPosition.x, targetPosition.y);
         }
     }
-
-    // TODO: Add back the circular graph panel
 }

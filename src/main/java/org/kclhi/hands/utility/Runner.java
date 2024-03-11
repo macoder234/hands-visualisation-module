@@ -5,8 +5,10 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.MenuItem;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.FileWriter;
@@ -308,7 +310,14 @@ public class Runner extends JFrame implements GraphReadyCallback{
   
   private JCheckBox strategyOverRounds;
   
+  // Variables for graph drawing
   private GraphPanel graphPanel;
+
+  private ArrayList<StringVertex> currentGraphVertices;
+
+  private Set<StringEdge> currentGraphEdges;
+
+  private String currentGraphLayout;
   /**
   * Helper interface for specifying different actions
   * to take place once something has been deleted
@@ -1638,6 +1647,7 @@ public class Runner extends JFrame implements GraphReadyCallback{
       tabbedPane.addTab("Visual", visualTab);
 
       graphPanel = new GraphPanel();
+      currentGraphLayout = "Force Directed"; // Default graph layout, 
       visualTab.add(graphPanel, BorderLayout.CENTER);
 
       // Call the new method to create the control panel
@@ -1647,23 +1657,35 @@ public class Runner extends JFrame implements GraphReadyCallback{
   private void createControlPanel(JPanel visualTab) {
     JPanel controlPanel = new JPanel();
     controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.Y_AXIS));
-    
-    // Example button
-    JButton refreshButton = new JButton("Refresh");
-    refreshButton.addActionListener(e -> {
-        // Placeholder for action - refresh the graphPanel here
-        System.out.println("Refresh graph");
+
+    // Combo box to select graph type
+    String[] graphTypes = {"Force Directed", "Circular"};
+    JComboBox<String> graphSelection = new JComboBox<>(graphTypes);
+
+    graphSelection.addItemListener(e -> {
+        if (e.getStateChange() == ItemEvent.SELECTED) {
+            currentGraphLayout = (String) e.getItem();
+            onGraphReady(currentGraphVertices, currentGraphEdges);
+        }
     });
 
-    // Add more controls as needed
-    controlPanel.add(refreshButton);
-
+    controlPanel.add(graphSelection);
     visualTab.add(controlPanel, BorderLayout.EAST);
   }
 
   @Override
   public void onGraphReady(ArrayList<StringVertex> vertices, Set<StringEdge> edges) {
-    graphPanel.setGraphData(vertices, edges);
+    currentGraphVertices = vertices;
+    currentGraphEdges = edges;
+    graphPanel.setGraphData(vertices, edges, currentGraphLayout);
+  }
+
+  @Override
+  public void onHiderSeekerReady(ArrayList<StringVertex> hiderVertices, ArrayList<StringVertex> seekerVertices) {
+    // System.out.println("Hider: " + hiderVertices);
+    // System.out.println("Seeker: " + seekerVertices);
+    // graphPanel.setHiderSeekerData(hiderVertices, seekerVertices);
+    // TODO: Invoke the method to update the graphPanel with hider and seeker data
   }
   
   /**
