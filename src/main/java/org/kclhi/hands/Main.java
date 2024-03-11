@@ -1540,10 +1540,23 @@ public class Main {
             Utils.writeToFile(outputJavascript, "hidden[" + i + "] = \"" + hiders.get(0).requestHideLocations(hiders.get(0)) + "\"; \n");
             
             Utils.writeToFile(outputJavascript, "path[" + i + "] = \"" + graphController.latestRoundPaths(this, seekers.get(0)) + "\"; \n");
-
-            // TODO: Get hider/seeker locations back to GraphPanel
             
           }
+
+          // Get the locations of the hiders and seekers to display on graph
+
+          ArrayList<StringVertex> hiderLocations = new ArrayList<>();
+          for (Hider hiderVertex : hiders) {
+              hiderLocations.add(hiderVertex.currentNode());
+          }
+      
+          ArrayList<StringVertex> seekerLocations = new ArrayList<>();
+          for (Seeker seekerVertex : seekers) {
+              seekerLocations.add(seekerVertex.currentNode());
+          }
+      
+          // Pass the locations to the callback function
+          graphReadyCallback.onHiderSeekerReady(hiderLocations, seekerLocations);      
           
           //
           
