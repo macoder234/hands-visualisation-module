@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -1685,7 +1686,8 @@ public class Runner extends JFrame implements GraphReadyCallback{
     graphSelection.addItemListener(e -> {
         if (e.getStateChange() == ItemEvent.SELECTED) {
             currentGraphLayout = (String) e.getItem();
-            onGraphReady(currentGraphVertices, currentGraphEdges);
+            graphPanel.setGraphLayout(currentGraphLayout);
+            graphPanel.drawGraph();
         }
     });
 
@@ -1729,6 +1731,15 @@ public class Runner extends JFrame implements GraphReadyCallback{
     
     controlPanel.add(graphSelection);
     visualTab.add(controlPanel, BorderLayout.EAST);
+  }
+
+  private void onGameStartGraph() {
+    // Clear the graph data
+    currentGraphVertices = new ArrayList<StringVertex>();
+    currentGraphEdges = new HashSet<StringEdge>();
+    
+    allSeekerVertices = new ArrayList<ArrayList<ArrayList<StringVertex>>>();
+    allHiderVertices = new ArrayList<ArrayList<ArrayList<StringVertex>>>();
   }
 
   private void onRunEndGraph() {
@@ -2988,6 +2999,8 @@ public class Runner extends JFrame implements GraphReadyCallback{
     
     System.out.println("-----------------------------------------------------------------");
     
+    onGameStartGraph();
+
     for(int i = 0; i < GAMES; i++) {
       
       System.out.println("Run: " + (i + 1));

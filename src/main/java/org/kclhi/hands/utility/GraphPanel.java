@@ -41,6 +41,11 @@ public class GraphPanel extends JPanel {
         repaint();
     }
 
+    public void setGraphLayout(String graphLayout) {
+        this.graphLayout = graphLayout;
+        assignPositions(graphLayout);
+    }
+
     @Override
     public void doLayout() {
         super.doLayout();
