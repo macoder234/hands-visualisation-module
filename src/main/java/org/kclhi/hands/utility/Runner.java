@@ -13,6 +13,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -311,6 +312,7 @@ public class Runner extends JFrame implements GraphReadyCallback{
   private JCheckBox strategyOverRounds;
   
   // Variables for graph drawing
+
   private GraphPanel graphPanel;
 
   private ArrayList<StringVertex> currentGraphVertices;
@@ -318,6 +320,22 @@ public class Runner extends JFrame implements GraphReadyCallback{
   private Set<StringEdge> currentGraphEdges;
 
   private String currentGraphLayout;
+
+  private ArrayList<ArrayList<ArrayList<StringVertex>>> allHiderVertices = new ArrayList<ArrayList<ArrayList<StringVertex>>>();
+
+  private ArrayList<ArrayList<ArrayList<StringVertex>>> allSeekerVertices = new ArrayList<ArrayList<ArrayList<StringVertex>>>();
+
+  private ArrayList<ArrayList<StringVertex>> currentRunHiderVertices = new ArrayList<ArrayList<StringVertex>>();
+
+  private ArrayList<ArrayList<StringVertex>> currentRunSeekerVertices = new ArrayList<ArrayList<StringVertex>>();
+
+  // Set current run and round indices to 0
+  private int currentRunIndex = 0;
+
+  private int currentRoundIndex = 0;
+
+  //
+
   /**
   * Helper interface for specifying different actions
   * to take place once something has been deleted
@@ -1642,6 +1660,8 @@ public class Runner extends JFrame implements GraphReadyCallback{
     
   }
 
+  // Graph drawing methods
+
   private void visualTab(JTabbedPane tabbedPane) {
       JPanel visualTab = new JPanel(new BorderLayout());
       tabbedPane.addTab("Visual", visualTab);
@@ -1669,24 +1689,94 @@ public class Runner extends JFrame implements GraphReadyCallback{
         }
     });
 
+    JButton nextRun = new JButton("Next Run");
+    nextRun.addActionListener(e -> {
+        if (currentRunIndex < allHiderVertices.size() - 1) {
+            currentRunIndex++;
+            updateHiderSeeker(); // This method updates the graph data and redraws the graph
+        }
+    });
+    
+    JButton previousRun = new JButton("Previous Run");
+    previousRun.addActionListener(e -> {
+        if (currentRunIndex > 0) {
+            currentRunIndex--;
+            updateHiderSeeker();
+        }
+    });
+    
+    JButton nextRound = new JButton("Next Round");
+    nextRound.addActionListener(e -> {
+        if (!allHiderVertices.isEmpty() && currentRoundIndex < allHiderVertices.get(currentRunIndex).size() - 1) {
+            currentRoundIndex++;
+            updateHiderSeeker();
+        }
+    });
+    
+    JButton previousRound = new JButton("Previous Round");
+    previousRound.addActionListener(e -> {
+        if (currentRoundIndex > 0) {
+            currentRoundIndex--;
+            updateHiderSeeker();
+        }
+    });
+    
+    // Add buttons to controlPanel
+    controlPanel.add(nextRun);
+    controlPanel.add(previousRun);
+    controlPanel.add(nextRound);
+    controlPanel.add(previousRound);
+    
     controlPanel.add(graphSelection);
     visualTab.add(controlPanel, BorderLayout.EAST);
   }
 
+  private void onRunEndGraph() {
+    // Store hider's and seeker's run vertices for drawing 
+    // System.out.println(currentRunHiderVertices);
+    allHiderVertices.add(currentRunHiderVertices);
+    allSeekerVertices.add(currentRunSeekerVertices);
+
+    // Clear current run hider's and seeker's vertices
+    currentRunHiderVertices = new ArrayList<ArrayList<StringVertex>>();
+    currentRunSeekerVertices = new ArrayList<ArrayList<StringVertex>>();
+  }
+
+  private void onGameEndGraph() {
+    graphPanel.setGraphData(currentGraphVertices, currentGraphEdges, currentGraphLayout);
+    graphPanel.setHiderSeekerData(allHiderVertices.get(currentRunIndex).get(currentRoundIndex), allSeekerVertices.get(currentRunIndex).get(currentRoundIndex));
+    System.out.println("All hider vertices: " + allHiderVertices);
+    System.out.println("All seeker vertices: " + allSeekerVertices);
+    drawGraph();
+  }
+
+  private void updateHiderSeeker() {
+    // Update the hider and seeker vertices for the current run and round
+    graphPanel.setHiderSeekerData(allHiderVertices.get(currentRunIndex).get(currentRoundIndex), allSeekerVertices.get(currentRunIndex).get(currentRoundIndex)); 
+    drawGraph();
+  }
+
+  private void drawGraph() {
+    // Draw the graph
+    graphPanel.drawGraph();
+  }
+
   @Override
   public void onGraphReady(ArrayList<StringVertex> vertices, Set<StringEdge> edges) {
+    // Store the graph vertex and edge data so it can be drawn
     currentGraphVertices = vertices;
     currentGraphEdges = edges;
-    graphPanel.setGraphData(vertices, edges, currentGraphLayout);
   }
 
   @Override
   public void onHiderSeekerReady(ArrayList<StringVertex> hiderVertices, ArrayList<StringVertex> seekerVertices) {
-    // System.out.println("Hider: " + hiderVertices);
-    // System.out.println("Seeker: " + seekerVertices);
-    // graphPanel.setHiderSeekerData(hiderVertices, seekerVertices);
-    // TODO: Invoke the method to update the graphPanel with hider and seeker data
+    // System.out.println(hiderVertices);
+    currentRunHiderVertices.add(hiderVertices);
+    // System.out.println(currentRunHiderVertices);
+    currentRunSeekerVertices.add(seekerVertices);
   }
+
+  // End of graph drawing methods
   
   /**
   * 
@@ -2999,8 +3089,13 @@ public class Runner extends JFrame implements GraphReadyCallback{
         // Utils.runCommand("printf '\\\\ec'");
         
       }
-      
+
+      onRunEndGraph();
+    
     } // End of game run loop
+
+    // Draws graph
+    onGameEndGraph();
     
     System.out.println("Started: " + startTime + " and ended: " + new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime()));
     

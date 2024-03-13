@@ -1,6 +1,7 @@
 package org.kclhi.hands.utility;
 import javax.swing.*;
 import java.awt.*;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,6 +17,9 @@ public class GraphPanel extends JPanel {
     private ArrayList<StringVertex> vertices;
     private Set<StringEdge> edges;
     private Map<StringVertex, Point> vertexPositions = new HashMap<>();
+    private String graphLayout;
+    private ArrayList<StringVertex> currentHiderVertices;
+    private ArrayList<StringVertex> currentSeekerVertices;
 
     public GraphPanel() {
     }
@@ -24,6 +28,16 @@ public class GraphPanel extends JPanel {
         this.vertices = vertices;
         this.edges = edges;
         assignPositions(graphLayout);
+    }
+
+    public void setHiderSeekerData(ArrayList<StringVertex> hiderVertices, ArrayList<StringVertex> seekerVertices) {
+        currentHiderVertices = hiderVertices;
+        currentSeekerVertices = seekerVertices;
+        System.out.println("Hider vertices: " + currentHiderVertices);
+        System.out.println("Seeker vertices: " + currentSeekerVertices);
+    }
+
+    public void drawGraph() {
         repaint();
     }
 
@@ -104,16 +118,31 @@ public class GraphPanel extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        // Draw vertices
-        for (StringVertex vertex : vertices) {
-            Point p = vertexPositions.get(vertex);
-            g.fillOval(p.x - 10, p.y - 10, 20, 20);
-        }
-        // Draw edges
+        Graphics2D g2 = (Graphics2D) g;
+    
+        // Draw edges first so nodes appear on top
+        g2.setColor(Color.BLACK);
         for (StringEdge edge : edges) {
             Point sourcePosition = vertexPositions.get(edge.getSource());
             Point targetPosition = vertexPositions.get(edge.getTarget());
-            g.drawLine(sourcePosition.x, sourcePosition.y, targetPosition.x, targetPosition.y);
+            g2.drawLine(sourcePosition.x, sourcePosition.y, targetPosition.x, targetPosition.y);
         }
-    }
+    
+        // Draw vertices and their outlines
+        for (StringVertex vertex : vertices) {
+            Point p = vertexPositions.get(vertex);
+            g2.setColor(Color.BLACK);
+            g2.fillOval(p.x - 10, p.y - 10, 20, 20);
+    
+            g2.setStroke(new BasicStroke(4)); // Thicker stroke for visibility
+            if (currentHiderVertices.contains(vertex)) {
+                g2.setColor(Color.BLUE);
+                g2.drawOval(p.x - 13, p.y - 13, 26, 26);
+            }
+            if (currentSeekerVertices.contains(vertex)) {
+                g2.setColor(Color.ORANGE);
+                g2.drawOval(p.x - 16, p.y - 16, 32, 32);
+            }
+        }
+    }    
 }
