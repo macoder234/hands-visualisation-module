@@ -33,8 +33,9 @@ public class GraphPanel extends JPanel {
     public void setHiderSeekerData(ArrayList<StringVertex> hiderVertices, ArrayList<StringVertex> seekerVertices) {
         currentHiderVertices = hiderVertices;
         currentSeekerVertices = seekerVertices;
-        System.out.println("Hider vertices: " + currentHiderVertices);
-        System.out.println("Seeker vertices: " + currentSeekerVertices);
+        
+        // System.out.println("Hider vertices: " + currentHiderVertices);
+        // System.out.println("Seeker vertices: " + currentSeekerVertices);
     }
 
     public void drawGraph() {
@@ -136,7 +137,7 @@ public class GraphPanel extends JPanel {
         // Draw vertices and their outlines
         for (StringVertex vertex : vertices) {
             Point p = vertexPositions.get(vertex);
-            g2.setColor(Color.BLACK);
+            g2.setColor(Color.GRAY);
             g2.fillOval(p.x - 10, p.y - 10, 20, 20);
     
             g2.setStroke(new BasicStroke(4)); // Thicker stroke for visibility
@@ -149,5 +150,16 @@ public class GraphPanel extends JPanel {
                 g2.drawOval(p.x - 16, p.y - 16, 32, 32);
             }
         }
-    }    
+            // Draw labels for hider and seeker vertices
+        g2.setColor(Color.BLACK);
+        g2.setFont(new Font("default", Font.BOLD, 16));
+        for (StringVertex vertex : currentHiderVertices) {
+            Point p = vertexPositions.get(vertex);
+            g2.drawString(vertex.toString(), p.x - 20, p.y + 5);
+        }
+        for (StringVertex vertex : currentSeekerVertices) {
+            Point p = vertexPositions.get(vertex);
+            g2.drawString(vertex.toString(), p.x - 20, p.y + 5);
+        }
+    }
 }

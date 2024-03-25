@@ -1,6 +1,7 @@
 package org.kclhi.hands.utility;
 
 import java.awt.BorderLayout;
+import java.awt.Font;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -26,6 +27,7 @@ import java.util.stream.Stream;
 import java.util.Scanner;
 import java.util.Set;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultListCellRenderer;
@@ -65,6 +67,9 @@ import org.kclhi.hands.utility.output.OutputManagerOffHeap;
 import org.kclhi.hands.utility.output.TraverserRecord;
 import bsh.EvalError;
 import bsh.Interpreter;
+
+import javax.swing.Box;
+import javax.swing.Box;
 
 
 /**
@@ -335,6 +340,21 @@ public class Runner extends JFrame implements GraphReadyCallback{
 
   private int currentRoundIndex = 0;
 
+  private JLabel runIndexLabel;
+  
+  private JLabel roundIndexLabel;
+
+  private JLabel previousRoundHiderVertices;
+
+  private JLabel previousRoundSeekerVertices;
+
+  private JLabel currentRoundHiderVertices;
+
+  private JLabel currentRoundSeekerVertices;
+
+  private JLabel nextRoundHiderVertices;
+
+  private JLabel nextRoundSeekerVertices;
   //
 
   /**
@@ -1676,37 +1696,13 @@ public class Runner extends JFrame implements GraphReadyCallback{
   }
 
   private void createControlPanel(JPanel visualTab) {
+    Font boldFont = new Font("default", Font.BOLD, 12);
+
     JPanel controlPanel = new JPanel();
     controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.Y_AXIS));
 
-    // Combo box to select graph type
-    String[] graphTypes = {"Force Directed", "Circular"};
-    JComboBox<String> graphSelection = new JComboBox<>(graphTypes);
-
-    graphSelection.addItemListener(e -> {
-        if (e.getStateChange() == ItemEvent.SELECTED) {
-            currentGraphLayout = (String) e.getItem();
-            graphPanel.setGraphLayout(currentGraphLayout);
-            graphPanel.drawGraph();
-        }
-    });
-
-    JButton nextRun = new JButton("Next Run");
-    nextRun.addActionListener(e -> {
-        if (currentRunIndex < allHiderVertices.size() - 1) {
-            currentRunIndex++;
-            updateHiderSeeker(); // This method updates the graph data and redraws the graph
-        }
-    });
-    
-    JButton previousRun = new JButton("Previous Run");
-    previousRun.addActionListener(e -> {
-        if (currentRunIndex > 0) {
-            currentRunIndex--;
-            updateHiderSeeker();
-        }
-    });
-    
+    // Round info + buttons
+    roundIndexLabel = new JLabel("Round: " + (currentRoundIndex + 1));
     JButton nextRound = new JButton("Next Round");
     nextRound.addActionListener(e -> {
         if (!allHiderVertices.isEmpty() && currentRoundIndex < allHiderVertices.get(currentRunIndex).size() - 1) {
@@ -1714,7 +1710,6 @@ public class Runner extends JFrame implements GraphReadyCallback{
             updateHiderSeeker();
         }
     });
-    
     JButton previousRound = new JButton("Previous Round");
     previousRound.addActionListener(e -> {
         if (currentRoundIndex > 0) {
@@ -1722,14 +1717,109 @@ public class Runner extends JFrame implements GraphReadyCallback{
             updateHiderSeeker();
         }
     });
-    
-    // Add buttons to controlPanel
+    // Add labels for previous,current and next hider/seeker vertices
+    JPanel labelPanel = new JPanel();
+    labelPanel.setLayout(new BoxLayout(labelPanel, BoxLayout.Y_AXIS));
+
+    JLabel prevRoundVertHider = new JLabel("Previous Round Hider Vertices:");
+    previousRoundHiderVertices = new JLabel();
+    labelPanel.add(prevRoundVertHider); 
+    labelPanel.add(previousRoundHiderVertices);
+
+    JLabel prevRoundVertSeeker = new JLabel("Previous Round Seeker Vertices:");
+    previousRoundSeekerVertices = new JLabel();
+    labelPanel.add(prevRoundVertSeeker);
+    labelPanel.add(previousRoundSeekerVertices);
+    //
+    JLabel currRoundVertHider = new JLabel("Current Round Hider Vertices:");
+    currRoundVertHider.setFont(boldFont);
+    labelPanel.add(currRoundVertHider);
+
+    currentRoundHiderVertices = new JLabel();
+    currentRoundHiderVertices.setFont(boldFont);
+    labelPanel.add(currentRoundHiderVertices);
+
+    JLabel currRoundVertSeeker = new JLabel("Current Round Seeker Vertices:");
+    currRoundVertSeeker.setFont(boldFont);
+    labelPanel.add(currRoundVertSeeker);
+
+    currentRoundSeekerVertices = new JLabel();
+    currentRoundSeekerVertices.setFont(boldFont);
+    labelPanel.add(currentRoundSeekerVertices);
+    //
+    JLabel nextRoundVertHider = new JLabel("Next Round Hider Vertices:");
+    labelPanel.add(nextRoundVertHider);
+    nextRoundHiderVertices = new JLabel();
+    labelPanel.add(nextRoundHiderVertices);
+
+    JLabel nextRoundVertSeeker = new JLabel("Next Round Seeker Vertices:");
+    labelPanel.add(nextRoundVertSeeker);
+    nextRoundSeekerVertices = new JLabel();
+    labelPanel.add(nextRoundSeekerVertices);
+    //
+    JPanel roundPanel = new JPanel(new BorderLayout());
+    roundPanel.setBorder(BorderFactory.createTitledBorder("Round Control"));
+    roundPanel.add(roundIndexLabel, BorderLayout.NORTH);
+    roundPanel.add(nextRound, BorderLayout.EAST);
+    roundPanel.add(previousRound, BorderLayout.WEST);
+    roundPanel.add(labelPanel, BorderLayout.SOUTH);
+    //
+    controlPanel.add(roundPanel);
+
+    // Add run buttons
+    runIndexLabel = new JLabel("Run: " + (currentRunIndex + 1));    
+    controlPanel.add(runIndexLabel);
+    JButton nextRun = new JButton("Next Run");
+    nextRun.addActionListener(e -> {
+        if (currentRunIndex < allHiderVertices.size() - 1) {
+            currentRunIndex++;
+            updateHiderSeeker();
+        }
+    });
+    JButton previousRun = new JButton("Previous Run");
+    previousRun.addActionListener(e -> {
+        if (currentRunIndex > 0) {
+            currentRunIndex--;
+            updateHiderSeeker();
+        }
+    });
     controlPanel.add(nextRun);
     controlPanel.add(previousRun);
-    controlPanel.add(nextRound);
-    controlPanel.add(previousRound);
-    
-    controlPanel.add(graphSelection);
+
+    JPanel runPanel = new JPanel(new BorderLayout());
+    runPanel.setBorder(BorderFactory.createTitledBorder("Run Control"));
+    runPanel.add(runIndexLabel, BorderLayout.NORTH);
+    runPanel.add(nextRun, BorderLayout.EAST);
+    runPanel.add(previousRun, BorderLayout.WEST);
+    controlPanel.add(runPanel);
+
+    // Combo box to select graph type
+    String[] graphTypes = {"Force Directed", "Circular"}; // Make sure that name matches in GraphPanel and
+                                                          // corresponding graph draw method is implemented
+    JComboBox<String> graphSelection = new JComboBox<>(graphTypes);
+    graphSelection.addItemListener(e -> {
+        if (e.getStateChange() == ItemEvent.SELECTED) {
+            currentGraphLayout = (String) e.getItem();
+            graphPanel.setGraphLayout(currentGraphLayout);
+            graphPanel.drawGraph();
+        }
+    });
+    JPanel graphSelectionPanel = new JPanel(new BorderLayout());
+    graphSelectionPanel.setBorder(BorderFactory.createTitledBorder("Choose Graph:"));
+    graphSelectionPanel.add(graphSelection, BorderLayout.CENTER);
+    controlPanel.add(graphSelectionPanel);
+
+    // Refresh button
+    JButton refreshButton = new JButton("Refresh");
+    refreshButton.addActionListener(e -> {
+      graphPanel.setGraphLayout(currentGraphLayout);
+      graphPanel.drawGraph();
+    });
+    JPanel refreshPanel = new JPanel(new BorderLayout());
+    refreshPanel.setBorder(BorderFactory.createTitledBorder("Refresh Graph"));
+    refreshPanel.add(refreshButton, BorderLayout.CENTER);
+    controlPanel.add(refreshPanel);
+
     visualTab.add(controlPanel, BorderLayout.EAST);
   }
 
@@ -1754,16 +1844,43 @@ public class Runner extends JFrame implements GraphReadyCallback{
   }
 
   private void onGameEndGraph() {
+    currentRoundIndex = 0;
+    currentRunIndex = 0;
     graphPanel.setGraphData(currentGraphVertices, currentGraphEdges, currentGraphLayout);
-    graphPanel.setHiderSeekerData(allHiderVertices.get(currentRunIndex).get(currentRoundIndex), allSeekerVertices.get(currentRunIndex).get(currentRoundIndex));
-    System.out.println("All hider vertices: " + allHiderVertices);
-    System.out.println("All seeker vertices: " + allSeekerVertices);
+    updateHiderSeeker();
+    
+    // System.out.println("All hider vertices: " + allHiderVertices);
+    // System.out.println("All seeker vertices: " + allSeekerVertices);
     drawGraph();
   }
 
   private void updateHiderSeeker() {
     // Update the hider and seeker vertices for the current run and round
     graphPanel.setHiderSeekerData(allHiderVertices.get(currentRunIndex).get(currentRoundIndex), allSeekerVertices.get(currentRunIndex).get(currentRoundIndex)); 
+    
+    runIndexLabel.setText("Run: " + (currentRunIndex + 1));
+    roundIndexLabel.setText("Round: " + (currentRoundIndex + 1));
+
+    // Update the labels for the previous, current, and next round vertices
+    if (currentRoundIndex > 0) {
+      previousRoundHiderVertices.setText(allHiderVertices.get(currentRunIndex).get(currentRoundIndex - 1).toString());
+      previousRoundSeekerVertices.setText(allSeekerVertices.get(currentRunIndex).get(currentRoundIndex - 1).toString());
+    } else {
+      previousRoundHiderVertices.setText("N/A");
+      previousRoundSeekerVertices.setText("N/A");
+    }
+
+    currentRoundHiderVertices.setText(allHiderVertices.get(currentRunIndex).get(currentRoundIndex).toString());
+    currentRoundSeekerVertices.setText(allSeekerVertices.get(currentRunIndex).get(currentRoundIndex).toString());
+
+    if (currentRoundIndex < allHiderVertices.get(currentRunIndex).size() - 1) {
+      nextRoundHiderVertices.setText(allHiderVertices.get(currentRunIndex).get(currentRoundIndex + 1).toString());
+      nextRoundSeekerVertices.setText(allSeekerVertices.get(currentRunIndex).get(currentRoundIndex + 1).toString());
+    } else {
+      nextRoundHiderVertices.setText("N/A");
+      nextRoundSeekerVertices.setText("N/A");
+    }
+
     drawGraph();
   }
 
