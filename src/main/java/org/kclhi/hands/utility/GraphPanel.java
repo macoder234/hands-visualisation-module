@@ -120,11 +120,32 @@ public class GraphPanel extends JPanel {
         }
     }
 
+    private void adjustVertexPositions() {
+        int padding = 30; // Padding size
+        Map<StringVertex, Point> adjustedPositions = new HashMap<>();
+    
+        for (Map.Entry<StringVertex, Point> entry : vertexPositions.entrySet()) {
+            StringVertex vertex = entry.getKey();
+            Point position = entry.getValue();
+    
+            // Adjust the position
+            int x = Math.max(padding, Math.min(getWidth() - padding, position.x));
+            int y = Math.max(padding, Math.min(getHeight() - padding, position.y));
+    
+            adjustedPositions.put(vertex, new Point(x, y));
+        }
+    
+        vertexPositions = adjustedPositions;
+    }
+
     
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
+
+        // Adjust the vertex positions
+        adjustVertexPositions();
     
         // Draw edges first so nodes appear on top
         g2.setColor(Color.BLACK);
