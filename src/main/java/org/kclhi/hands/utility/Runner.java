@@ -1,6 +1,7 @@
 package org.kclhi.hands.utility;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -36,6 +37,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -47,6 +49,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
@@ -1696,7 +1699,7 @@ public class Runner extends JFrame implements GraphReadyCallback{
   }
 
   private void createControlPanel(JPanel visualTab) {
-    Font boldFont = new Font("default", Font.BOLD, 12);
+    Font boldFont = new Font("default", Font.BOLD, 14);
 
     JPanel controlPanel = new JPanel();
     controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.Y_AXIS));
@@ -1815,10 +1818,52 @@ public class Runner extends JFrame implements GraphReadyCallback{
       graphPanel.setGraphLayout(currentGraphLayout);
       graphPanel.drawGraph();
     });
-    JPanel refreshPanel = new JPanel(new BorderLayout());
-    refreshPanel.setBorder(BorderFactory.createTitledBorder("Refresh Graph"));
-    refreshPanel.add(refreshButton, BorderLayout.CENTER);
-    controlPanel.add(refreshPanel);
+    JPanel utilityPanel = new JPanel(new BorderLayout());
+    utilityPanel.setBorder(BorderFactory.createTitledBorder("Utility"));
+    utilityPanel.add(refreshButton);
+
+    // Create a button that opens the modal dialog
+    JButton openModalButton = new JButton("Open Key");
+    openModalButton.addActionListener(e -> {
+      JDialog modalDialog = new JDialog();
+      modalDialog.setTitle("Graph Key");
+      modalDialog.setModal(true); // Makes the dialog modal
+      modalDialog.setSize(300, 200); // Set the size of the dialog
+
+      // Use a BoxLayout for the dialog
+      modalDialog.setLayout(new BoxLayout(modalDialog.getContentPane(), BoxLayout.Y_AXIS));
+
+      // Add a label to the dialog
+      JLabel dialogLabel = new JLabel("Key for agent types:", SwingConstants.LEFT);
+      modalDialog.add(dialogLabel, BorderLayout.NORTH);
+
+      // Keys for graph colors
+      JPanel keyPanel = new JPanel(new GridLayout(2, 1));
+      JLabel hiderLabel = new JLabel("HIDERS", SwingConstants.LEFT);
+      hiderLabel.setFont(boldFont);
+      hiderLabel.setForeground(Color.BLUE);
+      keyPanel.add(hiderLabel);
+      JLabel seekerLabel = new JLabel("SEEKERS", SwingConstants.LEFT);
+      seekerLabel.setFont(boldFont);
+      seekerLabel.setForeground(Color.ORANGE);
+      keyPanel.add(seekerLabel);
+
+      modalDialog.add(keyPanel);
+
+      // Add a close button to the dialog
+      JButton closeButton = new JButton("Close");
+      closeButton.addActionListener(event -> modalDialog.dispose());
+      modalDialog.add(closeButton);
+
+      // Center the dialog on the screen
+      modalDialog.setLocationRelativeTo(null);
+
+      // Show the dialog
+      modalDialog.setVisible(true);
+    });
+
+    utilityPanel.add(openModalButton, BorderLayout.SOUTH);
+    controlPanel.add(utilityPanel);
 
     visualTab.add(controlPanel, BorderLayout.EAST);
   }
@@ -3113,6 +3158,8 @@ public class Runner extends JFrame implements GraphReadyCallback{
     // Run 'games' of simulation by repeat running program
     
     String startTime = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
+
+    long startTimeTemp = System.currentTimeMillis();
     
     System.out.println("-----------------------------------------------------------------");
     
@@ -3223,6 +3270,12 @@ public class Runner extends JFrame implements GraphReadyCallback{
       onRunEndGraph();
     
     } // End of game run loop
+
+    long endTimeTemp = System.currentTimeMillis();
+
+    long timeElapsed = endTimeTemp - startTimeTemp;
+
+    System.out.println("Execution time in milliseconds: " + timeElapsed);
 
     // Draws graph
     onGameEndGraph();
