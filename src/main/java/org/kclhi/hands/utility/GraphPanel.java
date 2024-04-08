@@ -64,6 +64,8 @@ public class GraphPanel extends JPanel {
         final double repulsion = 5000; // Repulsion constant
         final double attraction = 0.1; // Attraction constant
         final int padding = 20;
+        // clear hashmap
+        vertexPositions.clear();
         Map<StringVertex, Point> newPositions = new HashMap<>();
     
         // Initialize random positions if not already set
