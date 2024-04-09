@@ -49,8 +49,9 @@ buildNumber.properties
 # End of https://www.toptal.com/developers/gitignore/api/java,maven
 
 .vscode/
+!/output/simulationSchedule-resp.txt
 /output
-!/output/simulationSchedule-template.txt
+!/output/simulationSchedule
 
 # mac stuff
 .DS_Store
